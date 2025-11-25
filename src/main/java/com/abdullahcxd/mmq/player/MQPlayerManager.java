@@ -5,11 +5,7 @@ import com.abdullahcxd.mmq.database.Databases;
 import lombok.Getter;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class MQPlayerManager {
@@ -22,10 +18,12 @@ public class MQPlayerManager {
     }
 
     public MQPlayer loadPlayer(UUID uuid) {
+        // Check cache first
         if (playerCache.containsKey(uuid)) {
             return playerCache.get(uuid);
         }
 
+        // Load from database
         Optional<JSONObject> playerObject = Databases.playerTable.get(uuid.toString());
 
         if (playerObject.isEmpty()) return null;
@@ -36,6 +34,7 @@ public class MQPlayerManager {
 
         MQPlayer player = new MQPlayer(uuid, metadata);
 
+        // Cache the loaded player
         playerCache.put(uuid, player);
 
         return player;
@@ -56,8 +55,10 @@ public class MQPlayerManager {
         PlayerMetadata metadata = player.getMetadata();
         JSONObject serializedPlayer = metadata.serialize();
 
+        // Save to database
         Databases.playerTable.put(player.getUniqueId().toString(), serializedPlayer);
 
+        // Update cache
         playerCache.put(player.getUniqueId(), player);
 
         return player;
@@ -66,14 +67,35 @@ public class MQPlayerManager {
     public void unloadPlayer(UUID uuid) {
         MQPlayer player = playerCache.remove(uuid);
         if (player != null) {
-            savePlayer(player);
+            savePlayer(player); // Save before removing from cache
         }
     }
 
-    public void unloadAll() {
-        for (UUID uuid : playerCache.keySet()) {
-            unloadPlayer(uuid);
+    public List<MQPlayer> loadAllPlayers() {
+        List<MQPlayer> allPlayers = new ArrayList<>();
+
+        // Get all player UUIDs from the database
+        Map<String, JSONObject> allPlayerData = Databases.playerTable.asMap();
+
+        for (Map.Entry<String, JSONObject> entry : allPlayerData.entrySet()) {
+            UUID uuid = UUID.fromString(entry.getKey());
+
+            // Check cache first
+            if (playerCache.containsKey(uuid)) {
+                allPlayers.add(playerCache.get(uuid));
+                continue;
+            }
+
+            // Load from database and cache
+            PlayerMetadata metadata = new PlayerMetadata(0.0, new HashSet<>(), null);
+            metadata.deserialize(entry.getValue());
+
+            MQPlayer player = new MQPlayer(uuid, metadata);
+            playerCache.put(uuid, player);
+            allPlayers.add(player);
         }
+
+        return allPlayers;
     }
 
 }

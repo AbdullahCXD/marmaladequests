@@ -49,6 +49,7 @@ public class MQQuestManager {
         if (player == null) return null;
 
         player.addFinishedQuest(quest.getQuestInfo().getId());
+        player.save();
         return this;
     }
 
