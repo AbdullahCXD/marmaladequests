@@ -1,0 +1,46 @@
+################################################################################################
+#
+#                                        __  __  ___
+#                                       |  \/  |/ _ \
+#                                       | |\/| | | | |
+#                                       | |  | | |_| |
+#                                       |_|  |_|\__\_\
+#
+#                               MarmaladeQuests by AbdullahCXD
+# ----------------------------------------------------------------------------------------------
+#
+#  The one-of-a-kind modern plugin delivering Quests, Abilities,
+#  and an expanded gameplay experience to vanilla Minecraft.
+#
+################################################################################################
+
+# ------------------------------------------------------------------------------
+#  Plugin Settings
+#
+#   The main settings for the plugin, it contains most information that the plugin
+#   will use during it's work. It contains version, enabling debugging and so on.
+# ------------------------------------------------------------------------------
+settings:
+  version: 1
+  debug: false
+
+
+# ------------------------------------------------------------------------------
+#  Database configuration
+#
+#   This is required to sync quests and player data and save them in the database
+#   You can clear the database with the command /mmq database clear
+#   Fill out the information below, for types use either MySQL or SQLite
+# ------------------------------------------------------------------------------
+database:
+  type: sqlite
+
+  # Sqlite
+  filePath: database.db # Will be placed under /plugins/MarmaladeQuests/databases/<file>
+
+  # MySQL
+  host: 0.0.0.0
+  port: 3306 # Default SQL port is: 3306 but change it to the respective one you have
+  username: root # This is defaulted to root, we do not recommend using root as your user, please create a user in the database and use it
+  password: supersecretpassword
+  database: mqdb
